@@ -195,6 +195,49 @@ class TasksTests(unittest.TestCase):
         response = self.app.get('tasks/', follow_redirects=True)
         self.assertIn(b'John', response.data)
 
+    def test_users_cannot_see_task_modify_links_for_tasks_not_created_by_them(self):
+        self.register('John', 'john@js.com', 'python', 'python')
+        self.login('John', 'python')
+        self.app.get('tasks/', follow_redirects=True)
+        self.create_task()
+        self.logout()
+        self.register(
+        'Smith', 'smith@js.com', 'python101', 'python101'
+        )
+        response = self.login('Smith', 'python101')
+        self.app.get('tasks/', follow_redirects=True)
+        self.assertNotIn(b'Mark as complete', response.data)
+        self.assertNotIn(b'Delete', response.data)
+
+def test_users_can_see_task_modify_links_for_tasks_created_by_them(self):
+        self.register('John', 'john@js.com', 'python', 'python')
+        self.login('John', 'python')
+        self.app.get('tasks/', follow_redirects=True)
+        self.create_task()
+        self.logout()
+        self.register(
+        'Smith', 'smith@js.com', 'python101', 'python101'
+        )
+        self.login('Smith', 'python101')
+        self.app.get('tasks/', follow_redirects=True)
+        response = self.create_task()
+        self.assertIn(b'complete/2/', response.data)
+        self.assertIn(b'complete/2/', response.data)
+
+def test_admin_users_can_see_task_modify_links_for_all_tasks(self):
+        self.register('John', 'john@js.com', 'python', 'python')
+        self.login('John', 'python')
+        self.app.get('tasks/', follow_redirects=True)
+        self.create_task()
+        self.logout()
+        self.create_admin_user()
+        self.login('Superuser', 'superuser')
+        self.app.get('tasks/', follow_redirects=True)
+        response = self.create_task()
+        self.assertIn(b'complete/1/', response.data)
+        self.assertIn(b'delete/1/', response.data)
+        self.assertIn(b'complete/2/', response.data)
+
     def test_string_reprsentation_of_the_task_object(self):
 
         from datetime import date
